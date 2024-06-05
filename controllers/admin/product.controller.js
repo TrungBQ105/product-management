@@ -30,8 +30,15 @@ module.exports.index = async (req, res) => {
     countProducts
   );
 
+  let sort = {};
+
+  if (req.query.sortKey && req.query.sortValue) {
+    sort[req.query.sortKey] = req.query.sortValue;
+  } else {
+    sort.position = "desc";
+  }
   const products = await Product.find(find)
-    .sort({ position: "desc" })
+    .sort(sort)
     .limit(objectPagination.limitItems)
     .skip(objectPagination.skip);
 
@@ -121,10 +128,6 @@ module.exports.createPost = async (req, res, next) => {
     req.body.position = parseInt(req.body.position);
   }
 
-  if (req.file) {
-    req.body.thumbnail = `/uploads/${req.file.filename}`;
-  }
-
   const product = new Product(req.body);
   await product.save();
 
@@ -132,12 +135,12 @@ module.exports.createPost = async (req, res, next) => {
 };
 
 module.exports.edit = async (req, res) => {
-  try{
+  try {
     const find = {
       deleted: false,
       _id: req.params.id,
     };
-  
+
     const product = await Product.findOne(find);
     res.render("admin/pages/products/edit", {
       pageTitle: "Chinh sua san pham",
@@ -146,24 +149,22 @@ module.exports.edit = async (req, res) => {
   } catch (error) {
     res.redirect(`${systemConfig.prefixAdmin}/products`);
   }
-
 };
 
 module.exports.editPatch = async (req, res) => {
-  const id = req.params.id
+  const id = req.params.id;
 
   req.body.price = parseInt(req.body.price);
   req.body.discountPercentage = parseInt(req.body.discountPercentage);
   req.body.stock = parseInt(req.body.stock);
   req.body.position = parseInt(req.body.position);
 
-
   if (req.file) {
     req.body.thumbnail = `/uploads/${req.file.filename}`;
   }
 
-  try{
-    await Product.updateOne({_id:id},req.body)
+  try {
+    await Product.updateOne({ _id: id }, req.body);
     req.flash("success", `Cap nhat san pham thanh cong!`);
   } catch (error) {
     req.flash("error", `Cap nhat san pham that bai!`);
@@ -173,12 +174,12 @@ module.exports.editPatch = async (req, res) => {
 };
 
 module.exports.detail = async (req, res) => {
-  try{
+  try {
     const find = {
       deleted: false,
       _id: req.params.id,
     };
-  
+
     const product = await Product.findOne(find);
 
     res.render("admin/pages/products/detail", {
@@ -188,5 +189,4 @@ module.exports.detail = async (req, res) => {
   } catch (error) {
     res.redirect(`${systemConfig.prefixAdmin}/products`);
   }
-
 };

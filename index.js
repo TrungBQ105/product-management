@@ -1,10 +1,10 @@
 const express = require("express");
+var path = require("path");
 const methodOverride = require("method-override");
 const bodyParser = require("body-parser");
 const flash = require("express-flash");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
-const multer = require("multer");
 
 require("dotenv").config();
 
@@ -20,8 +20,17 @@ const port = process.env.PORT;
 app.use(methodOverride("_method"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser("Croco"));
-app.use(session({ cookie: { maxAge: 60000 } }));
+app.use(session({
+  secret: 'Croco ',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {  maxAge: 60000  }
+}))
 app.use(flash());
+app.use(
+  "/tinymce",
+  express.static(path.join(__dirname, "node_modules", "tinymce"))
+);
 app.set("views", `${__dirname}/views`);
 app.set("view engine", "pug");
 
