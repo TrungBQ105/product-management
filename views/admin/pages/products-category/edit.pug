@@ -3,11 +3,13 @@ include ../../mixins/alert.pug
 include ../../mixins/select-tree.pug
 
 block main
-  h1(class="mb-4") Them moi danh muc san pham
-
   +alert-error(5000)
+  +alert-success(5000)
+
+  h1(class="mb-4") Chinh sua danh muc san pham
+    
   form(
-    action=`${prefixAdmin}/products-category/create`
+    action=`${prefixAdmin}/products-category/edit/${data.id}?_method=PATCH`
     method="POST"
     enctype="multipart/form-data"
   )
@@ -18,6 +20,7 @@ block main
         class="form-control"
         id="title" 
         name="title"
+        value=data.title
         required
       )
     div(class="form-group")
@@ -29,7 +32,7 @@ block main
       )
         option(value="") -- Chon danh muc cha --
         if(records)
-          +select-tree(records)
+          +select-tree(records,1,data.parent_id)
 
     div(class="form-group")
       label(for="desc") Mo ta
@@ -38,7 +41,7 @@ block main
         id="desc"
         name="description"
         rows="5"
-      )
+      ) #{data.description}
     div(
       class="form-group"
       upload-image
@@ -53,7 +56,7 @@ block main
         upload-image-input
       )
       img(
-        src=""
+        src=data.thumbnail
         upload-image-preview
         class="image-preview"
       )
@@ -64,6 +67,7 @@ block main
         class="form-control"
         id="position"
         name="position"
+        value=data.position
         placeholder="Tu dong tang"
         min="1"
       )
@@ -74,7 +78,7 @@ block main
         id="statusActive"
         name="status"
         value="active"
-        checked
+        checked =(data.status == "active" ? true : false)
       )
       label(for="statusActive" class="form-check-label") Hoat dong
     div(class="form-group form-check form-check-inline")
@@ -84,12 +88,15 @@ block main
         id="statusInActive"
         name="status"
         value="inactive"
+        checked =(data.status == "inactive" ? true : false)
+
       )
       label(for="statusInActive" class="form-check-label") Dung hoat dong
     div(class="form-group")
       button(
         type="submit"
         class="btn btn-primary"
-      ) Tao moi
+      ) Cap nhat
+
 
   script(src="/admin/js/product.js")

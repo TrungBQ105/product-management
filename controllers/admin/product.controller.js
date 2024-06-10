@@ -3,6 +3,9 @@ const filterStatusHelper = require("../../helpers/filterStatus");
 const searchHelper = require("../../helpers/search");
 const paginationHelper = require("../../helpers/pagination");
 const systemConfig = require("../../config/system");
+const ProductCategory = require("../../models/product-category.model");
+const createTreeHelper = require("../../helpers/createTree");
+
 module.exports.index = async (req, res) => {
   const filterStatus = filterStatusHelper(req.query);
 
@@ -111,8 +114,16 @@ module.exports.deleteItem = async (req, res) => {
 };
 
 module.exports.create = async (req, res) => {
+  let find = {
+    deleted: false,
+  };
+
+  const category = await ProductCategory.find(find);
+
+  const newCategory = createTreeHelper.tree(category);
   res.render("admin/pages/products/create", {
     pageTitle: "Them moi san pham",
+    category: newCategory,
   });
 };
 
@@ -140,11 +151,18 @@ module.exports.edit = async (req, res) => {
       deleted: false,
       _id: req.params.id,
     };
+  
+    const category = await ProductCategory.find({
+      deleted: false,
+    });
+  
+    const newCategory = createTreeHelper.tree(category);
 
     const product = await Product.findOne(find);
     res.render("admin/pages/products/edit", {
       pageTitle: "Chinh sua san pham",
       product: product,
+      category: newCategory,
     });
   } catch (error) {
     res.redirect(`${systemConfig.prefixAdmin}/products`);
